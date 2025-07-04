@@ -6,23 +6,133 @@
  * and re-run `payload generate:types` to regenerate this file.
  */
 
+/**
+ * Supported timezones in IANA format.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "supportedTimezones".
+ */
+export type SupportedTimezones =
+  | 'Pacific/Midway'
+  | 'Pacific/Niue'
+  | 'Pacific/Honolulu'
+  | 'Pacific/Rarotonga'
+  | 'America/Anchorage'
+  | 'Pacific/Gambier'
+  | 'America/Los_Angeles'
+  | 'America/Tijuana'
+  | 'America/Denver'
+  | 'America/Phoenix'
+  | 'America/Chicago'
+  | 'America/Guatemala'
+  | 'America/New_York'
+  | 'America/Bogota'
+  | 'America/Caracas'
+  | 'America/Santiago'
+  | 'America/Buenos_Aires'
+  | 'America/Sao_Paulo'
+  | 'Atlantic/South_Georgia'
+  | 'Atlantic/Azores'
+  | 'Atlantic/Cape_Verde'
+  | 'Europe/London'
+  | 'Europe/Berlin'
+  | 'Africa/Lagos'
+  | 'Europe/Athens'
+  | 'Africa/Cairo'
+  | 'Europe/Moscow'
+  | 'Asia/Riyadh'
+  | 'Asia/Dubai'
+  | 'Asia/Baku'
+  | 'Asia/Karachi'
+  | 'Asia/Tashkent'
+  | 'Asia/Calcutta'
+  | 'Asia/Dhaka'
+  | 'Asia/Almaty'
+  | 'Asia/Jakarta'
+  | 'Asia/Bangkok'
+  | 'Asia/Shanghai'
+  | 'Asia/Singapore'
+  | 'Asia/Tokyo'
+  | 'Asia/Seoul'
+  | 'Australia/Brisbane'
+  | 'Australia/Sydney'
+  | 'Pacific/Guam'
+  | 'Pacific/Noumea'
+  | 'Pacific/Auckland'
+  | 'Pacific/Fiji';
+
 export interface Config {
   auth: {
     users: UserAuthOperations;
   };
+  blocks: {};
   collections: {
     users: User;
     media: Media;
+    berita: Berita;
+    media_berita: MediaBerita;
+    pimpinan: Pimpinan;
+    ketua_program_studi: KetuaProgramStudi;
+    dosen: Dosen;
+    student_activity: StudentActivity;
+    layanan_mahasiswa: LayananMahasiswa;
+    'bank-soal': BankSoal;
+    media_bank_soal: MediaBankSoal;
+    survey: Survey;
+    'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  db: {
-    defaultIDType: string;
+  collectionsJoins: {};
+  collectionsSelect: {
+    users: UsersSelect<false> | UsersSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    berita: BeritaSelect<false> | BeritaSelect<true>;
+    media_berita: MediaBeritaSelect<false> | MediaBeritaSelect<true>;
+    pimpinan: PimpinanSelect<false> | PimpinanSelect<true>;
+    ketua_program_studi: KetuaProgramStudiSelect<false> | KetuaProgramStudiSelect<true>;
+    dosen: DosenSelect<false> | DosenSelect<true>;
+    student_activity: StudentActivitySelect<false> | StudentActivitySelect<true>;
+    layanan_mahasiswa: LayananMahasiswaSelect<false> | LayananMahasiswaSelect<true>;
+    'bank-soal': BankSoalSelect<false> | BankSoalSelect<true>;
+    media_bank_soal: MediaBankSoalSelect<false> | MediaBankSoalSelect<true>;
+    survey: SurveySelect<false> | SurveySelect<true>;
+    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
-  globals: {};
+  db: {
+    defaultIDType: number;
+  };
+  globals: {
+    'landing-page': LandingPage;
+    topbar: Topbar;
+    footer: Footer;
+    sejarah: Sejarah;
+    kurikulum: Kurikulum;
+    profil_lulusan: ProfilLulusan;
+    student_guide: StudentGuide;
+    sarana_dan_prasarana: SaranaDanPrasarana;
+    video_profil: VideoProfil;
+  };
+  globalsSelect: {
+    'landing-page': LandingPageSelect<false> | LandingPageSelect<true>;
+    topbar: TopbarSelect<false> | TopbarSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
+    sejarah: SejarahSelect<false> | SejarahSelect<true>;
+    kurikulum: KurikulumSelect<false> | KurikulumSelect<true>;
+    profil_lulusan: ProfilLulusanSelect<false> | ProfilLulusanSelect<true>;
+    student_guide: StudentGuideSelect<false> | StudentGuideSelect<true>;
+    sarana_dan_prasarana: SaranaDanPrasaranaSelect<false> | SaranaDanPrasaranaSelect<true>;
+    video_profil: VideoProfilSelect<false> | VideoProfilSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
+  };
+  jobs: {
+    tasks: unknown;
+    workflows: unknown;
   };
 }
 export interface UserAuthOperations {
@@ -48,7 +158,9 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
+  Nama?: string | null;
+  Role?: ('Admin' | 'Penulis') | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -65,7 +177,7 @@ export interface User {
  * via the `definition` "media".
  */
 export interface Media {
-  id: string;
+  id: number;
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -81,13 +193,314 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "berita".
+ */
+export interface Berita {
+  id: number;
+  title: string;
+  short_description?: string | null;
+  image: number | MediaBerita;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  publishedAt: string;
+  author?: (number | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        Nama?: string | null;
+      }[]
+    | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Koleksi khusus untuk gambar dan video yang terkait dengan berita.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_berita".
+ */
+export interface MediaBerita {
+  id: number;
+  /**
+   * Teks deskriptif untuk gambar, penting untuk SEO dan aksesibilitas.
+   */
+  alt: string;
+  /**
+   * Teks pendek yang ditampilkan di bawah gambar (opsional).
+   */
+  caption?: string | null;
+  /**
+   * Jenis penggunaan media dalam artikel berita.
+   */
+  type?: ('main-image' | 'thumbnail' | 'inline-image' | 'news-video' | 'other') | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pimpinan".
+ */
+export interface Pimpinan {
+  id: number;
+  name: string;
+  image: number | Media;
+  jabatan: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ketua_program_studi".
+ */
+export interface KetuaProgramStudi {
+  id: number;
+  name: string;
+  image: number | Media;
+  program_studi:
+    | 'Doktor Ilmu Kedokteran Gigi'
+    | 'Fakultas Kedokteran Gigi'
+    | 'Magister Ilmu Kedokteran Gigi'
+    | 'Pendidikan Dokter Gigi'
+    | 'PPDGS Ilmu Bedah Mulut dan Maksilofasial'
+    | 'PPDGS Kedokteran Gigi Anak'
+    | 'PPDGS Konservasi Gigi'
+    | 'PPDGS Ortodonti'
+    | 'PPDGS Penyakit Mulut'
+    | 'PPDGS Periodonsia'
+    | 'PPDGS Prostodonsia';
+  sambutan_singkat: string;
+  sambutan: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dosen".
+ */
+export interface Dosen {
+  id: number;
+  name: string;
+  description?: string | null;
+  image: number | Media;
+  program_studi:
+    | 'Doktor Ilmu Kedokteran Gigi'
+    | 'Fakultas Kedokteran Gigi'
+    | 'Magister Ilmu Kedokteran Gigi'
+    | 'Pendidikan Dokter Gigi'
+    | 'PPDGS Ilmu Bedah Mulut dan Maksilofasial'
+    | 'PPDGS Kedokteran Gigi Anak'
+    | 'PPDGS Konservasi Gigi'
+    | 'PPDGS Ortodonti'
+    | 'PPDGS Penyakit Mulut'
+    | 'PPDGS Periodonsia'
+    | 'PPDGS Prostodonsia';
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "student_activity".
+ */
+export interface StudentActivity {
+  id: number;
+  title: string;
+  description?: string | null;
+  image: number | Media;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "layanan_mahasiswa".
+ */
+export interface LayananMahasiswa {
+  id: number;
+  judul: string;
+  link: string;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bank-soal".
+ */
+export interface BankSoal {
+  id: number;
+  judul: string;
+  penulis: number | User;
+  jumlahDilihat?: number | null;
+  fileSoal: number | MediaBankSoal;
+  publishedAt: string;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Koleksi khusus untuk dokumen file soal (PDF, DOCX) dan media pendukung bank soal.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_bank_soal".
+ */
+export interface MediaBankSoal {
+  id: number;
+  /**
+   * Teks deskriptif untuk file (misalnya, "Soal Ujian Matematika Bab Aljabar"). Penting untuk aksesibilitas.
+   */
+  alt: string;
+  /**
+   * Informasi tambahan atau keterangan singkat mengenai isi file ini (opsional).
+   */
+  keterangan?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "survey".
+ */
+export interface Survey {
+  id: number;
+  /**
+   * Judul dari survei.
+   */
+  judul: string;
+  /**
+   * Tautan URL menuju halaman survei eksternal atau internal.
+   */
+  link: string;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-locked-documents".
+ */
+export interface PayloadLockedDocument {
+  id: number;
+  document?:
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'berita';
+        value: number | Berita;
+      } | null)
+    | ({
+        relationTo: 'media_berita';
+        value: number | MediaBerita;
+      } | null)
+    | ({
+        relationTo: 'pimpinan';
+        value: number | Pimpinan;
+      } | null)
+    | ({
+        relationTo: 'ketua_program_studi';
+        value: number | KetuaProgramStudi;
+      } | null)
+    | ({
+        relationTo: 'dosen';
+        value: number | Dosen;
+      } | null)
+    | ({
+        relationTo: 'student_activity';
+        value: number | StudentActivity;
+      } | null)
+    | ({
+        relationTo: 'layanan_mahasiswa';
+        value: number | LayananMahasiswa;
+      } | null)
+    | ({
+        relationTo: 'bank-soal';
+        value: number | BankSoal;
+      } | null)
+    | ({
+        relationTo: 'media_bank_soal';
+        value: number | MediaBankSoal;
+      } | null)
+    | ({
+        relationTo: 'survey';
+        value: number | Survey;
+      } | null);
+  globalSlug?: string | null;
+  user: {
+    relationTo: 'users';
+    value: number | User;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -107,11 +520,793 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  Nama?: T;
+  Role?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "berita_select".
+ */
+export interface BeritaSelect<T extends boolean = true> {
+  title?: T;
+  short_description?: T;
+  image?: T;
+  content?: T;
+  publishedAt?: T;
+  author?: T;
+  populatedAuthors?:
+    | T
+    | {
+        id?: T;
+        Nama?: T;
+      };
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_berita_select".
+ */
+export interface MediaBeritaSelect<T extends boolean = true> {
+  alt?: T;
+  caption?: T;
+  type?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pimpinan_select".
+ */
+export interface PimpinanSelect<T extends boolean = true> {
+  name?: T;
+  image?: T;
+  jabatan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ketua_program_studi_select".
+ */
+export interface KetuaProgramStudiSelect<T extends boolean = true> {
+  name?: T;
+  image?: T;
+  program_studi?: T;
+  sambutan_singkat?: T;
+  sambutan?: T;
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dosen_select".
+ */
+export interface DosenSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  image?: T;
+  program_studi?: T;
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "student_activity_select".
+ */
+export interface StudentActivitySelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  image?: T;
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "layanan_mahasiswa_select".
+ */
+export interface LayananMahasiswaSelect<T extends boolean = true> {
+  judul?: T;
+  link?: T;
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bank-soal_select".
+ */
+export interface BankSoalSelect<T extends boolean = true> {
+  judul?: T;
+  penulis?: T;
+  jumlahDilihat?: T;
+  fileSoal?: T;
+  publishedAt?: T;
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_bank_soal_select".
+ */
+export interface MediaBankSoalSelect<T extends boolean = true> {
+  alt?: T;
+  keterangan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "survey_select".
+ */
+export interface SurveySelect<T extends boolean = true> {
+  judul?: T;
+  link?: T;
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-locked-documents_select".
+ */
+export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
+  document?: T;
+  globalSlug?: T;
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-preferences_select".
+ */
+export interface PayloadPreferencesSelect<T extends boolean = true> {
+  user?: T;
+  key?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-migrations_select".
+ */
+export interface PayloadMigrationsSelect<T extends boolean = true> {
+  name?: T;
+  batch?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "landing-page".
+ */
+export interface LandingPage {
+  id: number;
+  hero_section: {
+    video_profil_fakultas: number | Media;
+    main_heading: string;
+  };
+  /**
+   * Masukkan pernyataan visi fakultas yang komprehensif dan inspiratif.
+   */
+  visi: string;
+  /**
+   * Cantumkan misi-misi utama yang menguraikan tujuan inti dan bagaimana fakultas mencapai visinya.
+   */
+  misi: string;
+  /**
+   * Jelaskan secara spesifik hasil atau capaian yang diharapkan dari kegiatan fakultas untuk mewujudkan misi dan visinya.
+   */
+  tujuan: string;
+  info?: {
+    /**
+     * Masukkan total jumlah departemen yang ada di fakultas.
+     */
+    departemen?: number | null;
+    /**
+     * Masukkan total jumlah program studi (Prodi) di bawah fakultas ini.
+     */
+    program_studi?: number | null;
+    /**
+     * Masukkan total jumlah staf, termasuk dosen dan tenaga kependidikan.
+     */
+    staff?: number | null;
+    /**
+     * Masukkan total jumlah mahasiswa.
+     */
+    mahasiswa?: number | null;
+  };
+  /**
+   * Unggah gambar atau logo yang merepresentasikan kemitraan dan kolaborasi internasional fakultas.
+   */
+  kemitraan_section: number | Media;
+  sejarah: string;
+  /**
+   * Kelola daftar sambutan Ketua Program Studi yang akan muncul di halaman landing.
+   */
+  daftar_sambutan_ketua_prodi?:
+    | {
+        /**
+         * Pilih Ketua Program Studi yang akan ditampilkan sambutannya.
+         */
+        sambutan_ketua_prodi: number | KetuaProgramStudi;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Pilih pimpinan yang akan muncul di bagian "Pimpinan" di halaman depan.
+   */
+  daftar_pimpinan?:
+    | {
+        /**
+         * Pilih pimpinan yang akan ditampilkan di bagian ini.
+         */
+        pimpinan: number | Pimpinan;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Kelola daftar layanan/aktivitas mahasiswa yang akan muncul di halaman landing.
+   */
+  layanan_mahasiswa_section?:
+    | {
+        /**
+         * Pilih layanan atau aktivitas mahasiswa yang akan ditampilkan.
+         */
+        layanan_mahasiswa: number | LayananMahasiswa;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "topbar".
+ */
+export interface Topbar {
+  id: number;
+  logo?: (number | null) | Media;
+  navItems?:
+    | {
+        tautan: {
+          type: 'internal' | 'external' | 'dropdown';
+          newTab?: boolean | null;
+          label: string;
+          internalPath?: string | null;
+          externalUrl?: string | null;
+          dropdownItems?:
+            | {
+                label: string;
+                linkType: 'internal' | 'external';
+                internalPath?: string | null;
+                externalUrl?: string | null;
+                newTab?: boolean | null;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer".
+ */
+export interface Footer {
+  id: number;
+  infos: {
+    logo: number | Media;
+    alamat: string;
+    kontak: string;
+  };
+  navigasi_1?: {
+    title?: string | null;
+    navItems?:
+      | {
+          tautan: {
+            type: 'internal' | 'external' | 'dropdown';
+            newTab?: boolean | null;
+            label: string;
+            internalPath?: string | null;
+            externalUrl?: string | null;
+            dropdownItems?:
+              | {
+                  label: string;
+                  linkType: 'internal' | 'external';
+                  internalPath?: string | null;
+                  externalUrl?: string | null;
+                  newTab?: boolean | null;
+                  id?: string | null;
+                }[]
+              | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
+  navigasi_2?: {
+    title?: string | null;
+    navItems?:
+      | {
+          tautan: {
+            type: 'internal' | 'external' | 'dropdown';
+            newTab?: boolean | null;
+            label: string;
+            internalPath?: string | null;
+            externalUrl?: string | null;
+            dropdownItems?:
+              | {
+                  label: string;
+                  linkType: 'internal' | 'external';
+                  internalPath?: string | null;
+                  externalUrl?: string | null;
+                  newTab?: boolean | null;
+                  id?: string | null;
+                }[]
+              | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
+  navigasi_3?: {
+    title?: string | null;
+    navItems?:
+      | {
+          tautan: {
+            type: 'internal' | 'external' | 'dropdown';
+            newTab?: boolean | null;
+            label: string;
+            internalPath?: string | null;
+            externalUrl?: string | null;
+            dropdownItems?:
+              | {
+                  label: string;
+                  linkType: 'internal' | 'external';
+                  internalPath?: string | null;
+                  externalUrl?: string | null;
+                  newTab?: boolean | null;
+                  id?: string | null;
+                }[]
+              | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Uraian tentang latar belakang pendirian, perkembangan, dan pencapaian penting dari fakultas.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sejarah".
+ */
+export interface Sejarah {
+  id: number;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Dokumentasi visual terkait struktur kurikulum, mencakup mata kuliah, distribusi semester, dan capaian pembelajaran.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kurikulum".
+ */
+export interface Kurikulum {
+  id: number;
+  gambar?: (number | Media)[] | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Informasi mengenai kompetensi utama, sikap, dan capaian pembelajaran yang diharapkan dimiliki oleh lulusan program studi.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "profil_lulusan".
+ */
+export interface ProfilLulusan {
+  id: number;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Dokumen resmi yang berisi informasi penting bagi mahasiswa, seperti tata tertib, alur akademik, dan layanan fakultas.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "student_guide".
+ */
+export interface StudentGuide {
+  id: number;
+  file?: (number | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Informasi mengenai fasilitas fisik dan penunjang akademik yang tersedia untuk mendukung proses pembelajaran, penelitian, dan kegiatan kemahasiswaan.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sarana_dan_prasarana".
+ */
+export interface SaranaDanPrasarana {
+  id: number;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Video pengenalan institusi atau program studi yang menampilkan visi, misi, fasilitas, dan kegiatan akademik maupun non-akademik.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "video_profil".
+ */
+export interface VideoProfil {
+  id: number;
+  video: number | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "landing-page_select".
+ */
+export interface LandingPageSelect<T extends boolean = true> {
+  hero_section?:
+    | T
+    | {
+        video_profil_fakultas?: T;
+        main_heading?: T;
+      };
+  visi?: T;
+  misi?: T;
+  tujuan?: T;
+  info?:
+    | T
+    | {
+        departemen?: T;
+        program_studi?: T;
+        staff?: T;
+        mahasiswa?: T;
+      };
+  kemitraan_section?: T;
+  sejarah?: T;
+  daftar_sambutan_ketua_prodi?:
+    | T
+    | {
+        sambutan_ketua_prodi?: T;
+        id?: T;
+      };
+  daftar_pimpinan?:
+    | T
+    | {
+        pimpinan?: T;
+        id?: T;
+      };
+  layanan_mahasiswa_section?:
+    | T
+    | {
+        layanan_mahasiswa?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "topbar_select".
+ */
+export interface TopbarSelect<T extends boolean = true> {
+  logo?: T;
+  navItems?:
+    | T
+    | {
+        tautan?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              label?: T;
+              internalPath?: T;
+              externalUrl?: T;
+              dropdownItems?:
+                | T
+                | {
+                    label?: T;
+                    linkType?: T;
+                    internalPath?: T;
+                    externalUrl?: T;
+                    newTab?: T;
+                    id?: T;
+                  };
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  infos?:
+    | T
+    | {
+        logo?: T;
+        alamat?: T;
+        kontak?: T;
+      };
+  navigasi_1?:
+    | T
+    | {
+        title?: T;
+        navItems?:
+          | T
+          | {
+              tautan?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    label?: T;
+                    internalPath?: T;
+                    externalUrl?: T;
+                    dropdownItems?:
+                      | T
+                      | {
+                          label?: T;
+                          linkType?: T;
+                          internalPath?: T;
+                          externalUrl?: T;
+                          newTab?: T;
+                          id?: T;
+                        };
+                  };
+              id?: T;
+            };
+      };
+  navigasi_2?:
+    | T
+    | {
+        title?: T;
+        navItems?:
+          | T
+          | {
+              tautan?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    label?: T;
+                    internalPath?: T;
+                    externalUrl?: T;
+                    dropdownItems?:
+                      | T
+                      | {
+                          label?: T;
+                          linkType?: T;
+                          internalPath?: T;
+                          externalUrl?: T;
+                          newTab?: T;
+                          id?: T;
+                        };
+                  };
+              id?: T;
+            };
+      };
+  navigasi_3?:
+    | T
+    | {
+        title?: T;
+        navItems?:
+          | T
+          | {
+              tautan?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    label?: T;
+                    internalPath?: T;
+                    externalUrl?: T;
+                    dropdownItems?:
+                      | T
+                      | {
+                          label?: T;
+                          linkType?: T;
+                          internalPath?: T;
+                          externalUrl?: T;
+                          newTab?: T;
+                          id?: T;
+                        };
+                  };
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sejarah_select".
+ */
+export interface SejarahSelect<T extends boolean = true> {
+  content?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kurikulum_select".
+ */
+export interface KurikulumSelect<T extends boolean = true> {
+  gambar?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "profil_lulusan_select".
+ */
+export interface ProfilLulusanSelect<T extends boolean = true> {
+  content?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "student_guide_select".
+ */
+export interface StudentGuideSelect<T extends boolean = true> {
+  file?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sarana_dan_prasarana_select".
+ */
+export interface SaranaDanPrasaranaSelect<T extends boolean = true> {
+  content?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "video_profil_select".
+ */
+export interface VideoProfilSelect<T extends boolean = true> {
+  video?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

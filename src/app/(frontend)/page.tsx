@@ -1,59 +1,112 @@
-import { headers as getHeaders } from 'next/headers.js'
-import Image from 'next/image'
-import { getPayload } from 'payload'
 import React from 'react'
-import { fileURLToPath } from 'url'
 
-import config from '@/payload.config'
+import './globals.css'
 import './styles.css'
+import { getPayload } from 'payload'
+
+import configPromise from '@payload-config'
+import HeroSection from '../_components/sections/hero'
+import { VisiMisiTujuanSection } from '../_components/sections/visi-misi-tujuan'
+import KemitraanSejarahSection from '../_components/sections/kemitraan-sejarah'
+import { KetuaProgramStudi, Media } from '@/payload-types'
+import { PimpinanSection } from '../_components/sections/pimpinan'
+import BeritaSection from '../_components/sections/berita'
+import {
+  LayananMahasiswa,
+  LayananMahasiswaSection,
+} from '../_components/sections/layanan-mahasiswa'
+import { LandingFooter } from '@/collections/global/Footer/LandingFooter'
+import SambutanKaprodiDekstop from '../_components/sections/sambutan-kaprodi-dekstop'
+import SambutanKaprodiMobile from '../_components/sections/sambutan-kaprodi-mobile'
 
 export default async function HomePage() {
-  const headers = await getHeaders()
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const { user } = await payload.auth({ headers })
+  const payload = await getPayload({ config: configPromise })
 
-  const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
+  const homePage = await payload.findGlobal({
+    slug: 'landing-page',
+    depth: 2,
+  })
+
+  const visiMisiTujuanData = {
+    visi: homePage.visi,
+    misi: homePage.misi,
+    tujuan: homePage.tujuan,
+  }
+
+  const kemitraanSection = homePage.kemitraan_section as Media
+  const kemitraanUrl = kemitraanSection.url ?? '/api/media_berita/file/not-found-berita-img.png'
+
+  const pimpinanData = homePage.daftar_pimpinan
+  const rawLayananMahasiswaData = homePage.layanan_mahasiswa_section
+
+  const sambutanKaprodiRaw = homePage.daftar_sambutan_ketua_prodi
+
+  const sambutanKaprodiData = sambutanKaprodiRaw?.map((temp) => {
+    const sambutan = temp.sambutan_ketua_prodi as KetuaProgramStudi
+
+    const { slug, name, image, program_studi, sambutan_singkat } = sambutan
+
+    const gambar = image as Media
+
+    return {
+      slug: slug as string,
+      name,
+      image: gambar,
+      program_studi,
+      sambutan_singkat,
+    }
+  })
+
+  // Filter dan map data untuk mendapatkan array LayananMahasiswa yang bersih
+  const layananMahasiswaData: LayananMahasiswa[] | null | undefined = rawLayananMahasiswaData
+    ?.map((item: any) => {
+      // Gunakan 'any' sementara jika struktur persis tidak diketahui
+      // Periksa apakah item.layanan_mahasiswa adalah objek dan bukan number
+      if (typeof item === 'object' && item !== null && 'layanan_mahasiswa' in item) {
+        // Asumsi struktur data: item = { layanan_mahasiswa: LayananMahasiswaObj }
+        const actualLayanan = item.layanan_mahasiswa
+        if (
+          typeof actualLayanan === 'object' &&
+          actualLayanan !== null &&
+          'judul' in actualLayanan
+        ) {
+          return actualLayanan as LayananMahasiswa
+        }
+      } else if (typeof item === 'object' && item !== null && 'judul' in item) {
+        // Asumsi struktur data: item = LayananMahasiswaObj secara langsung (jika bukan array relasi terbungkus)
+        return item as LayananMahasiswa
+      }
+      return null
+    })
+    .filter((item: LayananMahasiswa | null): item is LayananMahasiswa => item !== null)
 
   return (
-    <div className="home">
-      <div className="content">
-        <picture>
-          <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg" />
-          <Image
-            alt="Payload Logo"
-            height={65}
-            src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg"
-            width={65}
-          />
-        </picture>
-        {!user && <h1>Welcome to your new project.</h1>}
-        {user && <h1>Welcome back, {user.email}</h1>}
-        <div className="links">
-          <a
-            className="admin"
-            href={payloadConfig.routes.admin}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Go to admin panel
-          </a>
-          <a
-            className="docs"
-            href="https://payloadcms.com/docs"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Documentation
-          </a>
+    <div className="">
+      <HeroSection data={homePage.hero_section} />
+
+      <div id="landing_page_content" className="px-5 md:px-[96px]">
+        <div id="sambutan-ketua-program-studi">
+          <div className="md:block hidden">
+            <SambutanKaprodiDekstop data={sambutanKaprodiData} />
+          </div>
+
+          <div className="md:hidden block">
+            <SambutanKaprodiMobile data={sambutanKaprodiData} />
+          </div>
         </div>
+
+        <VisiMisiTujuanSection data={visiMisiTujuanData} />
+
+        <PimpinanSection data={pimpinanData} />
+
+        <KemitraanSejarahSection sejarahText={homePage.sejarah} kemitraanImg={kemitraanUrl} />
+
+        <BeritaSection />
+
+        <LayananMahasiswaSection data={layananMahasiswaData} />
       </div>
-      <div className="footer">
-        <p>Update this page by editing</p>
-        <a className="codeLink" href={fileURL}>
-          <code>app/(frontend)/page.tsx</code>
-        </a>
-      </div>
+
+      <LandingFooter />
     </div>
   )
 }
